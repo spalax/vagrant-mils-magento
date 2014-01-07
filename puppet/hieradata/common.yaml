@@ -57,8 +57,8 @@ mysql:
         wYYgdXQhaabf:
             grant:
                 - ALL
-            name: {replaceme-dbname}
+            name: mage_dev_db
             host: localhost
             user: spalax
             password: spalax
-            sql_file: /var/www/schema/{replaceme-dbname}.sql
+            sql_file: /var/www/schema/mage_dev_db.sql
