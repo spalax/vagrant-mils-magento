@@ -187,6 +187,7 @@ exec { "exec mkdir -p ${webroot_location}":
 if ! defined(File[$webroot_location]) {
   file { $webroot_location:
     ensure  => directory,
+    owner    => $::ssh_username,
     group   => 'www-data',
     mode    => 0775,
     require => [
