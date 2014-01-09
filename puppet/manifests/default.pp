@@ -464,6 +464,18 @@ define mysql_db (
     grant    => $grant,
     sql      => $sql_file,
   }
+
+  #exec { 'replacehostname':
+  #      cwd     => "/vagrant",
+  #      command => "sed -i 's/milcrew\.in/${fqdn}/g' ${sql_file}",
+  #      require => [ File[$sql_file] ]
+  #}
+  
+  exec { 'remove_cache':
+        cwd     => "/vagrant",
+        command => "rm -rf /vagrant/var/* && /usr/bin/env php /vagrant/shell/indexer.php reindex all"
+  }
+
 }
 
 if $mysql_values['phpmyadmin'] == 1 and is_hash($php_values) {
