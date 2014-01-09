@@ -451,24 +451,29 @@ define mysql_db (
   $password,
   $host,
   $grant    = [],
-  $sql_file = false
+  $sql_file = $::sql_file
 ) {
   if $name == '' or $password == '' or $host == '' {
     fail( 'MySQL DB requires that name, password and host be set. Please check your settings!' )
   }
+
+notify { 'SqlFileTest': 
+  withpath => true,
+    name     => "my initial sql_file is $sql_file",
+    }
 
   mysql::db { $name:
     user     => $user,
     password => $password,
     host     => $host,
     grant    => $grant,
-    sql      => $sql_file,
+    sql      => $sql_file
   }
 
   #exec { 'replacehostname':
   #      cwd     => "/vagrant",
-  #      command => "sed -i 's/milcrew\.in/${fqdn}/g' ${sql_file}",
-  #      require => [ File[$sql_file] ]
+  #      command => "sed -i 's/milcrew\.in/${fqdn}/g' ${::sql_file}",
+  #      require => [ File[$::sql_file] ]
   #}
   
   exec { 'remove_cache':
