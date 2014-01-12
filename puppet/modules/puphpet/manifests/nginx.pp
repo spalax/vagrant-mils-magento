@@ -28,5 +28,4 @@ class puphpet::nginx(
     content => template('puphpet/nginx/default_conf.erb'),
     notify  => Service['nginx'],
   }
-
 }

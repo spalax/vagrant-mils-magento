@@ -159,10 +159,6 @@ define add_dotdeb ($release){
 
 ## Begin Nginx manifest
 
-if $nginx_values == undef {
-   $nginx_values = hiera('nginx', false)
-}
-
 if $php_values == undef {
    $php_values = hiera('php', false)
 }
@@ -208,7 +204,22 @@ if $php_values['version'] == undef {
 }
 
 class { 'nginx':
-         worker_processes => '2'
+    worker_processes => '2',
+    
+    types_hash_max_size => '2048',
+    types_hash_bucket_size => '64',
+    names_hash_bucket_size => '128',
+
+    http_cfg_append => { 
+        fastcgi_buffer_size => '128k',
+        fastcgi_buffers => '4 256k',
+        fastcgi_busy_buffers_size => '256k'
+    },
+    proxy_buffers => '4 256k',
+    proxy_buffer_size => '128k',
+    proxy_cfg_append => {
+        proxy_busy_buffers_size => '256k'
+    }
 }
 
 if $::osfamily == 'redhat' and ! defined(Iptables::Allow['tcp/80']) {
@@ -246,10 +257,6 @@ if $apache_values == undef {
   $apache_values = hiera('apache', false)
 }
 
-if $nginx_values == undef {
-  $nginx_values = hiera('nginx', false)
-}
-
 Class['Php'] -> Class['Php::Devel'] -> Php::Module <| |> -> Php::Pear::Module <| |> -> Php::Pecl::Module <| |>
 
 if $php_prefix == undef {
@@ -266,7 +273,6 @@ if $php_fpm_ini == undef {
   }
 }
 
-if is_hash($nginx_values) {
   include nginx::params
 
   $php_webserver_service = "${php_prefix}fpm"
@@ -287,16 +293,6 @@ if is_hash($nginx_values) {
     hasstatus  => true,
     require    => Package[$php_webserver_service]
   }
-} else {
-  $php_webserver_service = undef
-  $php_webserver_restart = false
-
-  class { 'php':
-    package             => "${php_prefix}cli",
-    service             => $php_webserver_service,
-    service_autorestart => false,
-  }
-}
 
 class { 'php::devel': }
 
@@ -358,30 +354,13 @@ define php_pecl_mod {
   }
 }
 
-if $php_values['composer'] == 1 {
-  class { 'composer':
-    target_dir      => '/usr/local/bin',
-    composer_file   => 'composer',
-    download_method => 'curl',
-    logoutput       => false,
-    tmp_path        => '/tmp',
-    php_package     => "${php::params::module_prefix}cli",
-    curl_package    => 'curl',
-    suhosin_enabled => false,
-  }
-}
-
 ## Begin Xdebug manifest
 
 if $xdebug_values == undef {
   $xdebug_values = hiera('xdebug', false)
 }
 
-if is_hash($nginx_values) {
-  $xdebug_webserver_service = 'nginx'
-} else {
-  $xdebug_webserver_service = undef
-}
+$xdebug_webserver_service = 'nginx'
 
 if $xdebug_values['install'] != undef and $xdebug_values['install'] == 1 {
   class { 'puphpet::xdebug':
@@ -414,15 +393,7 @@ if $apache_values == undef {
   $apache_values = hiera('apache', false)
 }
 
-if $nginx_values == undef {
-  $nginx_values = hiera('nginx', false)
-}
-
-if is_hash($apache_values) or is_hash($nginx_values) {
-  $mysql_webserver_restart = true
-} else {
-  $mysql_webserver_restart = false
-}
+$mysql_webserver_restart = true
 
 if $mysql_values['root_password'] {
   class { 'mysql::server':
@@ -468,20 +439,13 @@ notify { 'SqlFileTest':
     host     => $host,
     grant    => $grant,
     sql      => $sql_file
+  } -> exec { 'remove_cache':
+     cwd     => "/vagrant",
+     path => ["/usr/bin/","/usr/sbin/","/bin"],
+     command => "rm -rf /vagrant/var/* && php /vagrant/shell/indexer.php reindex all"
   }
-
-  #exec { 'replacehostname':
-  #      cwd     => "/vagrant",
-  #      command => "sed -i 's/milcrew\.in/${fqdn}/g' ${::sql_file}",
-  #      require => [ File[$::sql_file] ]
-  #}
-  
-  exec { 'remove_cache':
-        cwd     => "/vagrant",
-        command => "rm -rf /vagrant/var/* && /usr/bin/env php /vagrant/shell/indexer.php reindex all"
-  }
-
-}
+ 
+} 
 
 if $mysql_values['phpmyadmin'] == 1 and is_hash($php_values) {
   if $::osfamily == 'debian' {
@@ -505,12 +469,10 @@ if $mysql_values['phpmyadmin'] == 1 and is_hash($php_values) {
 
   include puphpet::params
 
-  if is_hash($nginx_values) {
-    $mysql_webroot_location = $puphpet::params::nginx_webroot_location
+  $mysql_webroot_location = $puphpet::params::nginx_webroot_location
 
-    mysql_nginx_default_conf { 'override_default_conf':
-      webroot => $mysql_webroot_location
-    }
+  mysql_nginx_default_conf { 'override_default_conf':
+    webroot => $mysql_webroot_location
   }
 
   file { "${mysql_webroot_location}/phpmyadmin":
