@@ -28,7 +28,6 @@ Vagrant.configure("2") do |config|
 
   config.vm.provision :shell, :path => ".puppet/shell/initial-setup.sh"
   config.vm.provision :shell, :path => ".puppet/shell/update-puppet.sh"
-  config.vm.provision :shell, :path => ".puppet/shell/librarian-puppet-vagrant.sh"
   config.vm.provision :puppet do |puppet|
     puppet.facter = {
       "ssh_username" => "vagrant",
