@@ -10,7 +10,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.network "private_network", ip: MY_IP
   
-  if MY_PUBLIC_NETWORK_ENABLED
+  if MY_PUBLIC_NETWORK_ENABLED == 1
       config.vm.network "public_network", :bridge => 'en0: Wi-Fi (AirPort)'
   end
   
