@@ -1,7 +1,7 @@
 vagrant-mils-magento
 ====================
 
-Mil's common configuration for vagrant oriented for projects built with Magento 1.7 +
+Mil's common configuration for vagrant and projects built with Magento 1.7 +
 
 ## Description
 
