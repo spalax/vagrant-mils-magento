@@ -19,11 +19,13 @@ for Ubuntu you can run:
 for Mac everything what you need:
 ``` vagrant plugin install vagrant-hostsupdater ```
 
+### Lets begin
+
 Lets imagine you have magento source on path /var/www/magento and you have sql schema for magento with sample data on path /var/www/magento/schema/common.sql
 
-``` cd /var/www/magento ```
-
-### Lets begin
+``` 
+cd /var/www/magento 
+```
 
 Usually i use this repo as submodule of my project run under git, so i will describe how to configure it in the way which more suitable for me.
 
