@@ -23,6 +23,8 @@ Lets imagine you have magento source on path /var/www/magento and you have sql s
 
 ``` cd /var/www/magento ```
 
+### Lets begin
+
 Usually i use this repo as submodule of my project run under git, so i will describe how to configure it in the way which more suitable for me.
 
 ```
@@ -57,6 +59,8 @@ If this option will be "1" then you will be able to connect to your Virtual mach
 ```
 MY_PUBLIC_NETWORK_ENABLED = 0
 ```
-Optional parameter to configure available memory for VM
 
-``` MY_VBOX_MEMORY = 1024 ```
+Optional parameter to configure available memory for VM
+``` 
+MY_VBOX_MEMORY = 1024 
+```
