@@ -66,3 +66,9 @@ Optional parameter to configure available memory for VM
 ``` 
 MY_VBOX_MEMORY = 1024 
 ```
+
+## Additional details
+
+Mysql access: 
+u: root
+p: spalax
