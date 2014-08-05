@@ -53,7 +53,7 @@ mysql:
         wYYgdXQhaabf:
             grant:
                 - ALL
-            name: mage_dev_db
+            name: common
             host: localhost
             user: spalax
             password: spalax
