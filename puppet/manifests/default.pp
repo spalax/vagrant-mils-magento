@@ -433,18 +433,29 @@ notify { 'SqlFileTest':
     name     => "my initial sql_file is $sql_file",
     }
 
-  mysql::db { $name:
+if file_exists ($sql_file) == 1 {
+   mysql::db { $name:
     user     => $user,
     password => $password,
     host     => $host,
     grant    => $grant,
     sql      => $sql_file
-  } -> exec { 'remove_cache':
+   } -> exec { 'remove_cache':
      cwd     => "/vagrant",
      path => ["/usr/bin/","/usr/sbin/","/bin"],
-     command => "rm -rf /vagrant/var/* && php /vagrant/shell/indexer.php reindex all"
+     command => "rm -rf /vagrant/var/* && php /vagrant/shell/indexer.php reindex all",
+     onlyif => '/usr/bin/test -d /vagrant/shell/indexer.php && /usr/bin/test -e /vagrant/mage';
   }
- 
+ }
+
+ if file_exists($sql_file) != 1 {
+    mysql::db { $name:
+     user     => $user,
+     password => $password,
+     host     => $host,
+     grant    => $grant
+    }
+ }
 } 
 
 if $mysql_values['phpmyadmin'] == 1 and is_hash($php_values) {
